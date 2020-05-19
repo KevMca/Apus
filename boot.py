@@ -6,6 +6,3 @@ print('RUN: boot.py')
 # Test program
 #import blinker
 #blinker.blink()
-
-# I2C program
-import I2C

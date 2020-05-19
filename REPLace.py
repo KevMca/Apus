@@ -18,7 +18,7 @@
 
 # Now just set the port:
 
-port = '/dev/cu.wchusbserialfa130'
+port = '/dev/cu.wchusbserialfd120'
 
 # Given a local folder using the variable file_system_dir,
 # this overwrites the folder content to the flash of the MicroPython instance.
@@ -35,6 +35,11 @@ excludes = ['REPLace.py',
             'archive',
             'video',
             'thumbs',
+            'hooks',
+            'info',
+            'logs',
+            'objects',
+            'refs'
             ]
 
 # FOR FILES: This is the opposite of excludes. If you list basenames here, then only
@@ -43,10 +48,11 @@ excludes = ['REPLace.py',
 
 includes = []
 includes.append('boot.py')
+includes.append('main.py')
 #includes.append('blinker.py')
-includes.append('LSM9DS0.py')
-includes.append('pygebra.py')
-includes.append('IMU.py')
+#includes.append('LSM9DS0.py')
+#includes.append('pygebra.py')
+#includes.append('IMU.py')
 
 # The following variable reduces upload size.
 # If True, this removes blank lines, comments, and right-side whitespace.
