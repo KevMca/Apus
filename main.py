@@ -1,4 +1,4 @@
-import network, time
+import network, time, os
 
 print('RUN: main.py')
 
