@@ -103,10 +103,10 @@ class Matrix:
     # ------------------Prints ------------------ #
     # Define test and print characteristics
     def __repr__(self):
-        return "[x: {}, y: {}, z: {}]".format(self.vect_x, self.vect_y, self.vect_z)
+        return "x{}; y{}; z{}".format(self.vect_x, self.vect_y, self.vect_z)
 
     def __str__(self):
-        return "[x: {},\n y: {},\n z: {}]".format(self.vect_x, self.vect_y, self.vect_z)
+        return "x{}; y{}; z{}".format(self.vect_x, self.vect_y, self.vect_z)
 
     # -----------------Functions----------------- #
     def toEuler(self):

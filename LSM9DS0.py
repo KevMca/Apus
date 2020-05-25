@@ -77,8 +77,8 @@ class lsm9ds0:
         self.i2c = I2C(scl=Pin(clock), sda=Pin(data))
         print(self.i2c.scan())
         # Set the min and max calibrated magnetometor readings
-        self.mag_min = [-0.6207275, -1.422974, -0.7385254]
-        self.mag_max = [0.4266357, -0.6014404, 0.5570068]
+        self.mag_min = [-0.6196289, -1.453247, -0.7727051]
+        self.mag_max = [0.4564209, -0.6606445, 0.5444336]
 
         # Setup device control registers over i2c
         try:
@@ -138,8 +138,8 @@ class lsm9ds0:
         # Read 6 bytes after OUT_X_L_A / 2 bytes per axis
         reading = self.i2c.readfrom_mem(addr_accel_mag, OUT_X_L_A | 0x80, 6)
         # Assuming 4g full scale deflection
-        accReading = [((self.bytes_toint(reading[0], reading[1]) * 4) / 32768),
-            ((self.bytes_toint(reading[2], reading[3]) * 4) / 32768),
+        accReading = [-((self.bytes_toint(reading[0], reading[1]) * 4) / 32768),
+            (-(self.bytes_toint(reading[2], reading[3]) * 4) / 32768),
             ((self.bytes_toint(reading[4], reading[5]) * 4) / 32768)]
 
         return Vector3.from_vect(accReading)
@@ -177,6 +177,9 @@ class lsm9ds0:
         # Centre around 0
         magReading = [(a - (mx + mn)/2) for a, mx, mn in zip(magReading, self.mag_max, self.mag_min)]
         # Normalise
-        magReading = [(a / ((mx - mn)/2)) for a, mx, mn in zip(magReading, self.mag_max, self.mag_min)]
+        try:
+            magReading = [(a / ((mx - mn)/2)) for a, mx, mn in zip(magReading, self.mag_max, self.mag_min)]
+        except:
+            print()
 
         return Vector3.from_vect(magReading)

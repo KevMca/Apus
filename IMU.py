@@ -16,13 +16,13 @@ def orient():
     down = imu.readAcc()
     down.norm()
     mag = imu.readMag()
-    # Find east and normalise
-    east = down.cross(mag)
-    east.norm()
+    # Find west and normalise
+    west = down.cross(mag)
+    west.norm()
     # Find North and normalise
-    north = east.cross(down)
+    north = down.cross(west)
     north.norm()
-    return Matrix(east, north, down)
+    return Matrix(west, north, down)
 
 def orientEuler():
     while True:
@@ -37,20 +37,21 @@ def northCont():
         down = imu.readAcc()
         down.norm()
         mag = imu.readMag()
-        # Find east and normalise
-        east = down.cross(mag)
-        east.norm()
+        # Find west and normalise
+        west = down.cross(mag)
+        west.norm()
         # Find North and normalise
-        north = east.cross(down)
+        north = west.cross(down)
         north.norm()
         print(north)
         time.sleep_ms(10)
 
 def mag():
-    while True:
-        mag = imu.readMag()
-        print(mag)
-        time.sleep_ms(10)
+    #while True:
+    mag = imu.readMag()
+    return mag
+    #print(mag)
+    #time.sleep_ms(10)
 
 def acc():
     while True:
