@@ -44,7 +44,8 @@
 
         function onMessage(evt)
         {
-            writeToScreen('MSG FROM SERVER : <span style="color: blue;">' + evt.data + '</span>');
+            var rows = evt.data.split(";");
+            writeToScreen('MSG FROM SERVER : <span style="color: blue;">' + rows[0] + '</span>');
         }
 
         function onError(evt)

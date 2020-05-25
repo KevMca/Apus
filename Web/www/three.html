@@ -12,7 +12,34 @@
         <script src="three.js"></script>
         <script>
 
-            var data = "";
+            var rotation = new THREE.Matrix4().set(
+                0.707, -0.707, 0,  0,
+                0.707, 0.707,  0,  0,
+                0,     0,      1,  -5,
+                0,     0,      0, 1
+            );
+            var data = "0,0,1;0,1,0;1,0,0";
+            //var data = "1,0,0";
+            var websocket = 0;
+
+            var parse = function (data_p) {
+                var rows = data_p.split(";");
+                var row1 = rows[0].split(",");
+                var row2 = rows[1].split(",");
+                var row3 = rows[2].split(",");
+                /*rotation = new THREE.Matrix4().set(
+                    row1[2], row1[1], row1[0], 0,
+                    row2[2], row2[1], row2[0], 0,
+                    row3[2], row3[1], row3[0], -5,
+                    0,       0,       0,       1
+                );
+
+                return rotation;*/
+                var vects = [new THREE.Vector3(row1[0], -row1[2], row1[1]), new THREE.Vector3(row2[0], -row2[2], row2[1]), new THREE.Vector3(row3[0], -row3[2], row3[1])];
+                return vects;
+                //axes = data_p.split(",");
+                //return new THREE.Vector3(axes[0], -axes[2], axes[1]);
+            };
 
             // Initialise websockets
             function init()
@@ -30,12 +57,13 @@
 
             function onOpen(evt)
             {
-                websocket.send("Please update: " + data);
+                websocket.send("Update: " + data);
             }
 
             function onMessage(evt)
             {
                 data = evt.data;
+                //parse(evt.data);
             }
 
             window.addEventListener("load", init, false);
@@ -48,30 +76,32 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            var geometry = new THREE.BoxGeometry(1, 1, 1);
-            var material = new THREE.MeshBasicMaterial({color: 0xff0000});
-            var cube = new THREE.Mesh(geometry, material);
+            //var geometry = new THREE.BoxGeometry(1, 1, 1);
+            //var material = new THREE.MeshBasicMaterial({color: 0xff0000});
+            var acc = new THREE.ArrowHelper( new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, -3), 1, 0xff0000 );
+            var mag = new THREE.ArrowHelper( new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, -3), 1, 0x00ff00 );
+            var cross = new THREE.ArrowHelper( new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, 0, -3), 1, 0x0000ff );
+            scene.add(acc);
+            scene.add(mag);
+            scene.add(cross);
+            /*var cube = new THREE.Mesh(geometry, material);
             scene.add(cube);
 
-            var rotation = new THREE.Matrix4().set(
-                0.707, -0.707, 0, 0,
-                0.707, 0.707,  0, 0,
-                0,     0,      1, 0,
-                0,     0,      0, 1
-            );
-            cube.applyMatrix(rotation);
-            cube.position.z = -5;
+            cube.matrixAutoUpdate = false;
+            cube.matrix = rotation;*/
 
             //Create an render loop to allow animation
             var render = function () {
-                requestAnimationFrame( render );
-
-                websocket.send("Please update: " + data);
-
-                cube.rotation.x += 0.1;
-                cube.rotation.y += 0.1;
+                if (websocket.readyState === 1) { 
+                    websocket.send("Please update: " + data);
+                }
+                acc.setDirection(parse(data)[0]);
+                mag.setDirection(parse(data)[1]);
+                cross.setDirection(parse(data)[2]);
+                //cube.matrix = parse(data);
 
                 renderer.render(scene, camera);
+                requestAnimationFrame( render );
             };
 
             render();
