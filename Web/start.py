@@ -1,6 +1,9 @@
 
+import os
 from microWebSrv import MicroWebSrv
+os.chdir("..")
 import IMU
+os.chdir("Web")
 
 # ----------------------------------------------------------------------------
 
@@ -103,8 +106,18 @@ def _acceptWebSocketCallback(webSocket, httpClient) :
 
 def _recvTextCallback(webSocket, msg) :
 	print("WS RECV TEXT : %s" % msg)
-	matrix = imu.orient()
-	webSocket.SendText("%s" % matrix)
+	matrix = IMU.orient()
+	#m_str = "{},{},{};{},{},{};{},{},{}".format(matrix.vect_x.vect[0], matrix.vect_y.vect[0], matrix.vect_z.vect[0],
+	#	matrix.vect_x.vect[1], matrix.vect_y.vect[1], matrix.vect_z.vect[1],
+	#	matrix.vect_x.vect[2], matrix.vect_y.vect[2], matrix.vect_z.vect[2])
+	vect = IMU.mag()
+	m_str = "{},{},{};{},{},{};{},{},{}".format(matrix.vect_z.vect[0], matrix.vect_z.vect[1], matrix.vect_z.vect[2], #acc
+		vect.vect[0], vect.vect[1], vect.vect[2], #mag
+		matrix.vect_x.vect[0], matrix.vect_x.vect[1], matrix.vect_x.vect[2]) #cross
+	webSocket.SendText("%s" % m_str)
+	
+	#v_str = "{},{},{}".format(vect.vect[0], vect.vect[1], vect.vect[2])
+	#webSocket.SendText("%s" % v_str)
 
 def _recvBinaryCallback(webSocket, data) :
 	print("WS RECV DATA : %s" % data)
