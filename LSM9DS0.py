@@ -130,20 +130,7 @@ class lsm9ds0:
         if (two_comp & (1<<15)) != 0:
             two_comp = two_comp - (1 << 16)
         return two_comp
-
-    # Reads the accelerometer and returns a vector of pointing in the
-    # direction of the force on the device
-    def readAcc(self):
-        # OUT_X_L_A register has MSB set so that the pointer auto-increments
-        # Read 6 bytes after OUT_X_L_A / 2 bytes per axis
-        reading = self.i2c.readfrom_mem(addr_accel_mag, OUT_X_L_A | 0x80, 6)
-        # Assuming 4g full scale deflection
-        accReading = [-((self.bytes_toint(reading[0], reading[1]) * 4) / 32768),
-            (-(self.bytes_toint(reading[2], reading[3]) * 4) / 32768),
-            ((self.bytes_toint(reading[4], reading[5]) * 4) / 32768)]
-
-        return Vector3.from_vect(accReading)
-
+    
     # Does a hard iron calibration, where the min and max magnetometer
     # readings are updated along each axis
     def hardIron(self, magReading):
@@ -183,3 +170,28 @@ class lsm9ds0:
             print()
 
         return Vector3.from_vect(magReading)
+
+    # Reads the accelerometer and returns a vector of pointing in the
+    # direction of the force on the device
+    def readAcc(self):
+        # OUT_X_L_A register has MSB set so that the pointer auto-increments
+        # Read 6 bytes after OUT_X_L_A / 2 bytes per axis
+        reading = self.i2c.readfrom_mem(addr_accel_mag, OUT_X_L_A | 0x80, 6)
+        # Assuming 4g full scale deflection
+        accReading = [-((self.bytes_toint(reading[0], reading[1]) * 4) / 32768),
+            (-(self.bytes_toint(reading[2], reading[3]) * 4) / 32768),
+            ((self.bytes_toint(reading[4], reading[5]) * 4) / 32768)]
+
+        return Vector3.from_vect(accReading)
+
+    # Reads the gyroscope and returns angular rates for each axis
+    def readGyro(self):
+        # OUT_X_L_G register has MSB set so that the pointer auto-increments
+        # Read 6 bytes after OUT_X_L_A / 2 bytes per axis
+        reading = self.i2c.readfrom_mem(addr_gyro, OUT_X_L_G | 0x80, 6)
+        # Assuming 245 degrees per second full scale deflection
+        gyroReading = [-((self.bytes_toint(reading[0], reading[1]) * 245) / 32768),
+            (-(self.bytes_toint(reading[2], reading[3]) * 245) / 32768),
+            ((self.bytes_toint(reading[4], reading[5]) * 245) / 32768)]
+
+        return Vector3.from_vect(gyroReading)
