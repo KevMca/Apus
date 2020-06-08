@@ -109,6 +109,17 @@ class Matrix:
         return "x{}; y{}; z{}".format(self.vect_x, self.vect_y, self.vect_z)
 
     # -----------------Functions----------------- #
+    # Returns inverse of rotation matrix
+    # Inversion of rotation matrix is just its transpose
+    def invert(self):
+        vect_x = self.vect_x
+        vect_y = self.vect_y
+        vect_z = self.vect_z
+
+        self.vect_x = Vector3.from_vect([vect_x.vect[0], vect_y.vect[0], vect_z.vect[0]])
+        self.vect_y = Vector3.from_vect([vect_x.vect[1], vect_y.vect[1], vect_z.vect[1]])
+        self.vect_z = Vector3.from_vect([vect_x.vect[2], vect_y.vect[2], vect_z.vect[2]])
+
     def toEuler(self):
         if abs(self.vect_x.vect[2]) != 1:
             y = -1 * math.asin(self.vect_x.vect[2])

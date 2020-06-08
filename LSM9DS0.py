@@ -77,8 +77,8 @@ class lsm9ds0:
         self.i2c = I2C(scl=Pin(clock), sda=Pin(data))
         print(self.i2c.scan())
         # Set the min and max calibrated magnetometor readings
-        self.mag_min = [-0.6196289, -1.453247, -0.7727051]
-        self.mag_max = [0.4564209, -0.6606445, 0.5444336]
+        self.mag_min = [-0.618042, -1.426025, -0.7663574]
+        self.mag_max = [0.44104, -0.6049805, 0.5472412]
 
         # Setup device control registers over i2c
         try:
