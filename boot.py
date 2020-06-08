@@ -2,7 +2,3 @@
 
 # notify
 print('RUN: boot.py')
-
-# Test program
-#import blinker
-#blinker.blink()

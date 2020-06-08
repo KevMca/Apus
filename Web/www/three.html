@@ -18,8 +18,7 @@
                 0,     0,      1,  -5,
                 0,     0,      0, 1
             );
-            var data = "0,0,1;0,1,0;1,0,0";
-            //var data = "1,0,0";
+            var data = "1,0,0;0,1,0;0,0,1";
             var websocket = 0;
 
             var parse = function (data_p) {
@@ -27,18 +26,16 @@
                 var row1 = rows[0].split(",");
                 var row2 = rows[1].split(",");
                 var row3 = rows[2].split(",");
-                /*rotation = new THREE.Matrix4().set(
-                    row1[2], row1[1], row1[0], 0,
-                    row2[2], row2[1], row2[0], 0,
-                    row3[2], row3[1], row3[0], -5,
+                rotation = new THREE.Matrix4().set(
+                    row1[0], row2[0], row3[0], 0,
+                    row1[1], row2[1], row3[1], 5,
+                    row1[2], row2[2], row3[2], 0,
                     0,       0,       0,       1
                 );
 
-                return rotation;*/
-                var vects = [new THREE.Vector3(row1[0], -row1[2], row1[1]), new THREE.Vector3(row2[0], -row2[2], row2[1]), new THREE.Vector3(row3[0], -row3[2], row3[1])];
-                return vects;
-                //axes = data_p.split(",");
-                //return new THREE.Vector3(axes[0], -axes[2], axes[1]);
+                return rotation;
+                /*var vects = [new THREE.Vector3(-row1[1], -row1[2], -row1[0]), new THREE.Vector3(-row2[1], -row2[2], -row2[0]), new THREE.Vector3(-row3[1], -row3[2], -row3[0])];
+                return vects;*/
             };
 
             // Initialise websockets
@@ -70,35 +67,37 @@
 
             // Three.js
             var scene = new THREE.Scene();
+            scene.rotation.x = 90 * Math.PI/180;
+            scene.rotation.z = 180 * Math.PI/180;
             var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight);
 
             var renderer = new THREE.WebGLRenderer({antialis: true});
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            //var geometry = new THREE.BoxGeometry(1, 1, 1);
-            //var material = new THREE.MeshBasicMaterial({color: 0xff0000});
-            var acc = new THREE.ArrowHelper( new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, -3), 1, 0xff0000 );
-            var mag = new THREE.ArrowHelper( new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, -3), 1, 0x00ff00 );
-            var cross = new THREE.ArrowHelper( new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, 0, -3), 1, 0x0000ff );
-            scene.add(acc);
-            scene.add(mag);
-            scene.add(cross);
-            /*var cube = new THREE.Mesh(geometry, material);
+            var geometry = new THREE.BoxGeometry(1, 1, 1);
+            var material = new THREE.MeshBasicMaterial({color: 0xff0000});
+            /*var east = new THREE.ArrowHelper( new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, -3), 1, 0xff0000 );
+            var north = new THREE.ArrowHelper( new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, -3), 1, 0x00ff00 );
+            var down = new THREE.ArrowHelper( new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, -3), 1, 0x0000ff );
+            scene.add(east);
+            scene.add(north);
+            scene.add(down);*/
+            var cube = new THREE.Mesh(geometry, material);
             scene.add(cube);
 
             cube.matrixAutoUpdate = false;
-            cube.matrix = rotation;*/
+            cube.matrix = rotation;
 
             //Create an render loop to allow animation
             var render = function () {
                 if (websocket.readyState === 1) { 
                     websocket.send("Please update: " + data);
                 }
-                acc.setDirection(parse(data)[0]);
-                mag.setDirection(parse(data)[1]);
-                cross.setDirection(parse(data)[2]);
-                //cube.matrix = parse(data);
+                /*east.setDirection(parse(data)[0]);
+                north.setDirection(parse(data)[1]);
+                down.setDirection(parse(data)[2]);*/
+                cube.matrix = parse(data);
 
                 renderer.render(scene, camera);
                 requestAnimationFrame( render );
