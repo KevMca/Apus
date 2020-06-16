@@ -78,6 +78,23 @@ class Euler:
         return "[x: {}, y: {}, z: {}]".format(self.angle_x, self.angle_y, self.angle_z)
 
     # -----------------Functions----------------- #
+    def __add__(self, other):
+        return Euler(self.angle_x + other.angle_x,\
+                    self.angle_y + other.angle_y,
+                    self.angle_z + other.angle_z)
+    
+    def __mul__(self, other):
+        try:
+            return Euler(self.angle_x * other.angle_x,\
+                self.angle_y * other.angle_y,
+                self.angle_z * other.angle_z)
+        except:
+            return Euler(self.angle_x * other,\
+                self.angle_y * other,
+                self.angle_z * other)
+    
+    __rmul__ = __mul__
+
     def toDeg(self):
         self.angle_x *= (180/math.pi)
         self.angle_y *= (180/math.pi)

@@ -1,7 +1,10 @@
 # Import libraries
+import utime
 from machine import I2C
 from machine import Pin
 from pygebra import Vector3
+from pygebra import Matrix
+from pygebra import Euler
 
 # Addresses
 addr_gyro = 107
@@ -79,6 +82,11 @@ class lsm9ds0:
         # Set the min and max calibrated magnetometor readings
         self.mag_min = [-0.618042, -1.426025, -0.7663574]
         self.mag_max = [0.44104, -0.6049805, 0.5472412]
+        # Set drift values
+        self.gyro_drift = [0.7402039, -0.8374023, -0.620575]
+        # Setup internal angle measurement
+        self.prev_time = utime.ticks_us()
+        self.angle = Euler(0, 0, 0)
 
         # Setup device control registers over i2c
         try:
@@ -193,5 +201,48 @@ class lsm9ds0:
         gyroReading = [-((self.bytes_toint(reading[0], reading[1]) * 245) / 32768),
             (-(self.bytes_toint(reading[2], reading[3]) * 245) / 32768),
             ((self.bytes_toint(reading[4], reading[5]) * 245) / 32768)]
+        gyroReading = [gyroReading[0] - self.gyro_drift[0],
+            gyroReading[1] - self.gyro_drift[1],
+            gyroReading[2] - self.gyro_drift[2]]
 
-        return Vector3.from_vect(gyroReading)
+        return Euler(gyroReading[0], gyroReading[1], gyroReading[2])
+
+    # Creates a rotation matrix from the accelerometer and magnetometer
+    # which is a low drift source of orientation data, but contains a lot
+    # of high frequency noise
+    def lowFreqMatrix(self):
+        up = self.readAcc()
+        up.norm()
+        mag = self.readMag()
+
+        # Find east and normalise
+        east = mag.cross(up)
+        east.norm()
+
+        # Find North and normalise
+        north = up.cross(east)
+        north.norm()
+
+        # Invert matrix 
+        mat = Matrix(east, north, up)
+        mat.invert()
+        return mat
+
+    # Calculates euler angles from the accelerometer and magnetometer
+    def lowFreqEuler(self):
+        mat = self.lowFreqMatrix()
+        eul = mat.toEuler()
+        eul.toDeg()
+        return eul
+    
+    # Complementary filter combines low freq and high freq measurements
+    # to provide better orientation estimate and saves in self.angle
+    def complFilter(self):
+        lowF = self.lowFreqEuler()
+        highF = self.readGyro()
+        # Calculate dt using timer
+        curr_time = utime.ticks_us()
+        dt = float(utime.ticks_diff(curr_time, self.prev_time))/float(1000000)
+        self.prev_time = curr_time
+        # Update complementary filter
+        self.angle = (self.angle + highF*dt)*0.98 + (lowF)*0.02

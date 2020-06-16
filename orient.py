@@ -12,6 +12,11 @@ from pygebra import Euler
 # to select the peripheral and/or pins to use
 imu = lsm9ds0()
 
+def complementary():
+    while(True):
+        imu.complFilter()
+        print(imu.angle)
+
 def getOrientMat():
     up = imu.readAcc()
     up.norm()
