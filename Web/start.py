@@ -32,6 +32,11 @@ def _recvBinaryCallback(webSocket, data) :
 def _closedCallback(webSocket) :
 	print("WS CLOSED")
 '''
+
+@MicroWebSrv.route('/pid', 'POST')
+def handlerFuncPost(httpClient, httpResponse) :
+  print("In POST-TEST HTTP")
+
 # Start server
 # ----------------------------------------------------------------------------
 
