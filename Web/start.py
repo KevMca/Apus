@@ -1,13 +1,13 @@
 # Import microWebSrv and IMU libraries
 import os
 from microWebSrv import MicroWebSrv
-os.chdir("..")
-import orient
-os.chdir("Web")
+#os.chdir("..")
+#import orient
+#os.chdir("Web")
 
 # Web sockets
 # ----------------------------------------------------------------------------
-
+'''
 # Web socket initialisation
 def _acceptWebSocketCallback(webSocket, httpClient) :
 	print("WS ACCEPT")
@@ -31,14 +31,14 @@ def _recvBinaryCallback(webSocket, data) :
 # Web socket closure
 def _closedCallback(webSocket) :
 	print("WS CLOSED")
-
+'''
 # Start server
 # ----------------------------------------------------------------------------
 
 srv = MicroWebSrv(webPath='www')
 srv.MaxWebSocketRecvLen     = 256
 srv.WebSocketThreaded		= False
-srv.AcceptWebSocketCallback = _acceptWebSocketCallback
-srv.Start()
+#srv.AcceptWebSocketCallback = _acceptWebSocketCallback
+srv.Start(threaded=True)
 
 # ----------------------------------------------------------------------------

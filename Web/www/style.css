@@ -1,36 +1,106 @@
-html, body {
- margin: 0;
- padding: 0;
- }
-body {
- background-color: white; 
- font-family: Verdana, sans-serif; 
- font-size: 100%;
- }
-h1 {
- font-size: 200%; 
- color: navy; 
- text-align: center;
- }
-h2 {
- font-size: 150%; 
- color: red; 
- padding-left: 15px;
- }
-p,ul,li,td {
- color: black; 
- }
-a:link {
- color: green;
- text-decoration: underline;
- }
-a:visited {
- color: gray;
- }
-a:hover {
- color: red;
- text-decoration: none;
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
-a:active, a:focus {
- color: red;
+body {
+    background-color: white; 
+    color: #707070;
+    font-size: 20px;
+    line-height: 20px;
+    margin-top: 20px;
+}
+h1 {
+    width: 85%;
+    margin: 0 auto;
+    padding: 20px;
+    /* Border */
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 30px;
+    border-color: #707070;
+    /* Text */
+    color: #707070;
+    font-style: italic;
+    font-size: 20px;
+    text-align: center;
+}
+input[type=text] {
+    width: 50%;
+    padding: 12px;
+    margin: 8px 0;
+    border-style: none;
+    background-color: #E3E3E3;
+    color: #707070;
+}
+button[type=increment]{
+    border: none;
+    display: inline-block;
+    cursor: pointer;
+}
+.button_up{
+    height: 40px;
+    width: 15%;
+    background-color: #707070;
+    color: #ffffff;
+    font-size: 15px;
+}
+.button_down{
+    height: 40px;
+    width: 15%;
+    font-size: 15px;
+}
+button[type=submit]{
+    border: none;
+    border-radius: 10px;
+    justify-content: center;
+    cursor: pointer;
+    height: 40px;
+    width: 30%;
+    background-color: #FF5C5C;
+    color: #ffffff;
+    font-size: 20px;
+}
+
+.text--bold{
+    font-family: 'Quicksand', Verdana, sans-serif; 
+    font-weight: 700;
+}
+.text--medium{
+    font-family: 'Quicksand', Verdana, sans-serif; 
+    font-weight: 500;
+}
+.text--center{
+    text-align: center;
+}
+.text--underline{
+    text-decoration: underline;
+}
+
+.cards{
+    width: 85%;
+    margin: 0 auto;
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+.card{
+    margin: 0 auto;
+    background: linear-gradient(to bottom,  #FF5C5C 0px,#FF5C5C 60px, #707070 60px,#707070 61px, #f8f8f8 61px,#f8f8f8 100%);
+    /* Border */
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 30px;
+    border-color: #707070;
+}
+.card_title{
+    margin: 0 auto;
+    text-align: center;
+    padding: 20px;
+    color: rgb(255, 255, 255); 
+}
+.card_body{
+    padding: 20px;
+}
+.card_info{
+    display: flex;
 }
