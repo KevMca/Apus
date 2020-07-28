@@ -1,3 +1,10 @@
+################################################################################
+# BNO055.py
+# The class wrapper for the BNO055 9 DOF IMU
+#
+# Author:  Kevin McAndrew
+# Created: 21 July 2020
+################################################################################
 # Import libraries
 import time
 from machine import I2C
@@ -16,28 +23,32 @@ EUL_Roll_LSB    = b'\x1C'
 EUL_Heading_MSB = b'\x1B'
 EUL_Heading_LSB = b'\x1A'
 
-# ----------------------------------------------- #
-# BNO055(clock, data)
+################################################################################
 # An object representing the BNO055 9 DOF fusion 
-# IMU. clock and data are the clk and sda pins for i2c 
-# ----------------------------------------------- #
+# Initialise with constants and then use update function to update the PID
+# controller with current error
+#
+#   Params: kp - proportional constant
+#           ki - integral constant
+#           kd - derivative constant
+################################################################################
 class BNO055:
 
-    # Initialise the BNO055
-    def __init__(self, clock = 22, data = 21):
+    # --------------------------------------------------------------------------
+    # Initialisation method
+    # --------------------------------------------------------------------------
+    def __init__(self, i2c_bus):
         # Setup i2c
-        self.i2c = I2C(scl=Pin(clock), sda=Pin(data))
-        print(self.i2c.scan())
+        self.i2c = i2c_bus
 
         # Setup operation mode
-        self.i2c.writeto(addr_bosch, b'\x3D\x0C', True)
-
-    # Setup device
-    #def setup(self):
         #self.i2c.writeto(addr_bosch, bytearray([REGISTER, DATA]))
+        self.i2c.writeto(addr_bosch, b'\x3D\x0C', True)
     
-    # Converts bytes read from BNO055 module into two's complement
-    # form and then converts into signed integer 
+    # --------------------------------------------------------------------------
+    # Converts bytes read from BNO055 module into two's complement form and then 
+    # converts into signed integer 
+    # --------------------------------------------------------------------------
     def bytes_toint(self, bLow, bHigh):
         two_comp = (bHigh<<8) | bLow
         # If number is negative : MSB = 1
@@ -45,11 +56,14 @@ class BNO055:
             two_comp = two_comp - (1 << 16)
         return two_comp
 
+    # --------------------------------------------------------------------------
     # Read euler angles from the BNO055
     # Pitch : from -180 to +180
     # Roll  : from -90  to +90
     # Yaw   : from 0    to +360
+    # --------------------------------------------------------------------------
     def readEuler(self):
+
         try:
             # Set register to read from
             self.i2c.writeto(addr_bosch, EUL_Heading_LSB, False)
@@ -62,14 +76,6 @@ class BNO055:
             return euler
 
         except:
-            return -1
+            return Euler(-1, -1, -1)
 
-    def readQuat(self):
-
-        
-        
-        
-
-# from BNO055 import BNO055
-# imu = BNO055()
-# imu.readEuler()
+    #def readQuat(self):

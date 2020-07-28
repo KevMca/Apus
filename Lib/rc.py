@@ -7,7 +7,7 @@
 # Created: 25 June 2020
 ################################################################################
 # Import libraries
-import machine, utime
+import machine, utime, time
 from machine import Pin
 
 ################################################################################
@@ -42,7 +42,8 @@ class receiver:
         # Initialise other variables
         self.nPins = len(self.pins)
         self.time = [0]*self.nPins
-        self.i = 0
+        self.seq = 0
+        self.new = 0
         self.prevTime = utime.ticks_us()
 
     # --------------------------------------------------------------------------
@@ -51,21 +52,58 @@ class receiver:
     # --------------------------------------------------------------------------
     def update(self, pin):
         # If it is the START
-        if self.i == 0:
+        if self.seq == 0:
             self.prevTime = utime.ticks_us()
-            self.i += 1
+            self.seq += 1
         else:
             # Read current time and find difference
             currTime = utime.ticks_us()
-            self.time[self.i-1] = utime.ticks_diff(currTime, self.prevTime)
+            self.time[self.seq-1] = utime.ticks_diff(currTime, self.prevTime)
             
             # If not at the end - increment and save time
-            if self.i != self.nPins:
-                self.i += 1
+            if self.seq != self.nPins:
+                self.seq += 1
                 self.prevTime = currTime
             
             # END - increment overflow
             else:
-                self.i = 0
-                print(self.time)
-            
+                self.seq = 0
+                self.new = 1
+                #print(self.time)
+
+################################################################################
+# Moving average class for smoothing RC receiver values. It uses a circular
+# buffer to reduce the memory usage. Pointer keeps track of the circular buffer
+# pointer
+#
+# Use update(val) function to update the moving average and return the current
+# average
+#
+#   Params: N - the number of samples to average
+################################################################################
+class movingAvg:
+    # --------------------------------------------------------------------------
+    # Initialisation method
+    # --------------------------------------------------------------------------
+    def __init__(self, N):
+        self.N = N
+        self.pointer = 0
+        self.data = [0]*self.N
+
+    # --------------------------------------------------------------------------
+    # Update method for adding to moving average
+    # --------------------------------------------------------------------------
+    def update(self, val):
+        # Update data and pointer
+        self.data[self.pointer] = val
+        self.pointer += 1
+        
+        # Add wrapping for circular buffer
+        if self.pointer >= self.N:
+            self.pointer = 0
+
+        # Check if the update method has been updated for first time
+        if self.data[self.pointer] == 0:
+            self.data = [val]*self.N
+
+        return sum(self.data)/self.N

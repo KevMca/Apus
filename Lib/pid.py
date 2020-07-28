@@ -1,7 +1,26 @@
+################################################################################
+# pid.py
+# The class wrapper for pid controllers
+#
+# Author:  Kevin McAndrew
+# Created: 5 July 2020
+################################################################################
+# Import libraries
 import utime, servo
-from LSM9DS0 import lsm9ds0
 
+################################################################################
+# Generic PID class for controlling surfaces
+# Initialise with constants and then use update function to update the PID
+# controller with current error
+#
+#   Params: kp - proportional constant
+#           ki - integral constant
+#           kd - derivative constant
+################################################################################
 class pid:
+    # --------------------------------------------------------------------------
+    # Initialisation method
+    # --------------------------------------------------------------------------
     def __init__(self, kp, ki, kd):
         # Constants
         self.kp = kp
@@ -16,6 +35,9 @@ class pid:
         self.prev_time = utime.ticks_us()
         self.output = 0
 
+    # --------------------------------------------------------------------------
+    # Update the PID controller with the current error
+    # --------------------------------------------------------------------------
     def update(self, error):
         # Calculate dt
         curr_time = utime.ticks_us()
@@ -47,13 +69,3 @@ class pid:
         # Save error
         self.prev_err = error
         self.prev_time = utime.ticks_us()
-
-def test():
-    imu = lsm9ds0()
-    pid_i = pid(0.25, 0.5, 0.5)
-
-    while(True):
-        imu.complFilter()
-        pid_i.update(0-imu.angle.angle_x)
-        servo.servoDeg(pid_i.output + 90)
-        print(pid_i.output)
