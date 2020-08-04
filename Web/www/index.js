@@ -1,107 +1,146 @@
 const pid_card = document.getElementById("pid_card");
-var names = ["Pitch", "Roll", "Yaw"];
+let json_data;
 fetch('pid.json')
     .then(response => response.json())
     .then(data => appendPID(data));
 
 function appendPID(data){
-    console.log(data);
-    // Run for pitch, roll and yaw
-    for (var i = 0; i < data.length; i++) {
-        var _br = document.createElement("br");
-        // Title
-        var title = document.createElement("p");
-        title.class = "text--bold";
-        title.innerHTML = names[i];
-        // Labels
-        var label_prop = document.createElement("label");
-        label_prop.style = "display:inline-block; width:10%;";
-        label_prop.class = "text--medium";
-        var label_integ = label_prop.cloneNode(true);
-        var label_deriv = label_prop.cloneNode(true);
-        label_prop.innerHTML = "P";
-        label_integ.innerHTML = "I";
-        label_deriv.innerHTML = "D";
-        // Inputs
-        var prop = document.createElement("input");
-        prop.type = "text";
-        prop.class = "card_input";
-        var integ = prop.cloneNode(true);
-        var deriv = prop.cloneNode(true);
-        prop.id = names[i] + "_p";
-        integ.id = names[i] + "_i";
-        deriv.id = names[i] + "_d";
-        prop.value = data[i].p;
-        integ.value = data[i].i;
-        deriv.value = data[i].d;
-        // Increments
-        var prop_up = document.createElement("button");
-        prop_up.type = "increment";
-        prop_up.className = "button_up text--bold";
-        prop_up.innerHTML = "∧";
-        var prop_down = prop_up.cloneNode(true);
-        prop_down.className = "button_down text--bold";
-        prop_down.innerHTML = "∨";
-        var integ_up = prop_up.cloneNode(true);
-        var integ_down = prop_down.cloneNode(true);
-        var deriv_up = prop_up.cloneNode(true);
-        var deriv_down = prop_down.cloneNode(true);
-        prop_up.id = names[i] + "_but_p_up";
-        prop_down.id = names[i] + "_but_p_d";
-        integ_up.id = names[i] + "_but_i_up";
-        integ_down.id = names[i] + "_but_i_d";
-        deriv_up.id = names[i] + "_but_d_up";
-        deriv_down.id = names[i] + "_but_d_d";
+    json_data = data;
+    // -- Axis container
+    data.forEach((element) => {
+        // -- Title
+        const title = `<br><p class="text--bold">${element["name"]}</p><br>`;
+        const titleDiv = document.createElement("div");
+        titleDiv.innerHTML = title;
+        pid_card.appendChild(titleDiv);
+        
+        // -- Input and increment buttons
+        for (var key in element["data"]) {
+            // Markup
+            const paramMarkup = 
+                `<div class="property-container">
+                    <label class="text--medium" style="display:inline-block; width:10%;">${key}</label>
+                    <input class="card_input" type="text" value=${element["data"][key]}>
+                    <button class="button_up text--bold" type="increment"> ∧ </button>
+                    <button class="button_down text--bold" type="increment"> ∨ </button>
+                </div>`;
 
-        // Assign values to inputs
-        pid_card.appendChild(_br.cloneNode(true));
-        pid_card.appendChild(title);
-        pid_card.appendChild(_br.cloneNode(true));
-
-        pid_card.appendChild(label_prop);
-        pid_card.appendChild(prop);
-        pid_card.appendChild(prop_up.cloneNode(true));
-        pid_card.appendChild(prop_down.cloneNode(true));
-        pid_card.appendChild(_br.cloneNode(true));
-
-        pid_card.appendChild(label_integ);
-        pid_card.appendChild(integ);
-        pid_card.appendChild(integ_up.cloneNode(true));
-        pid_card.appendChild(integ_down.cloneNode(true));
-        pid_card.appendChild(_br.cloneNode(true));
-
-        pid_card.appendChild(label_deriv);
-        pid_card.appendChild(deriv);
-        pid_card.appendChild(deriv_up.cloneNode(true));
-        pid_card.appendChild(deriv_down.cloneNode(true));
-
-        pid_card.appendChild(_br.cloneNode(true));
-    }
-    var submit = document.createElement("button");
-    submit.className = "text--bold";
-    submit.type = "submit";
-    submit.innerHTML = "Submit";
-    submit.id = "submit_btn";
-    var submit_contain = document.createElement("div");
-    submit_contain.style = "text-align: center;";
-    submit_contain.appendChild(submit);
-    pid_card.appendChild(_br.cloneNode(true));
-    pid_card.appendChild(submit_contain);
+            // Create element
+            const paramDiv = document.createElement("div");
+            paramDiv.innerHTML = paramMarkup
+            pid_card.appendChild(paramDiv);
+        }
+    })
+    // -- Submit button
+    const submit = 
+        `<button class="text--bold" type="submit">Submit</button>`;
+    const submitDiv = document.createElement("div");
+    submitDiv.style = "text-align: center;";
+    submitDiv.innerHTML = submit;
+    pid_card.appendChild(submitDiv);
 }
+// This is the bit that I'm currently working on
 window.onload = function(){
     // Submit button listener
     // Should read all of the text boxes and save to pid.json
     document.getElementById("submit_btn").addEventListener("click", function() {
         // Placeholder to test
-        console.log(document.getElementById("Pitch_p").value);
+        json_data[0].p = document.getElementById("Pitch_p").value;
+        json_data[0].i = document.getElementById("Pitch_i").value;
+        json_data[0].d = document.getElementById("Pitch_d").value;
+        json_data[1].p = document.getElementById("Roll_p").value;
+        json_data[1].i = document.getElementById("Roll_i").value;
+        json_data[1].d = document.getElementById("Roll_d").value;
+        json_data[2].p = document.getElementById("Yaw_p").value;
+        json_data[2].i = document.getElementById("Yaw_i").value;
+        json_data[2].d = document.getElementById("Yaw_d").value;
+        console.log(json_data);
+
+        fetch("/pid", {
+            method: "post",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            //make sure to serialize your JSON body
+            body: JSON.stringify(json_data)
+        })
     });
-    for (var i = 0; i < names.length; i++) {
-        // Button listeners
-        // Used to increment the text boxes up and down
-        /*document.getElementById("submit_btn").addEventListener("click", function() {
-            console.log(document.getElementById(names[i] + "but_p_up").value);
-        });*/
-        // Input listeners
-        
-    }
+    
+    // Button listeners
+    // Used to increment the text boxes up and down
+    
+    document.getElementById("Pitch_but_p_up").addEventListener("click", function() {
+        document.getElementById("Pitch_p").value = 
+            (parseFloat(document.getElementById("Pitch_p").value) + 1).toString();
+    });
+    document.getElementById("Pitch_but_p_down").addEventListener("click", function() {
+        document.getElementById("Pitch_p").value = 
+            (parseFloat(document.getElementById("Pitch_p").value) - 1).toString();
+    });
+    document.getElementById("Pitch_but_i_up").addEventListener("click", function() {
+        document.getElementById("Pitch_i").value = 
+            (parseFloat(document.getElementById("Pitch_i").value) + 1).toString();
+    });
+    document.getElementById("Pitch_but_i_down").addEventListener("click", function() {
+        document.getElementById("Pitch_i").value = 
+            (parseFloat(document.getElementById("Pitch_i").value) - 1).toString();
+    });
+    document.getElementById("Pitch_but_d_up").addEventListener("click", function() {
+        document.getElementById("Pitch_d").value = 
+            (parseFloat(document.getElementById("Pitch_d").value) + 1).toString();
+    });
+    document.getElementById("Pitch_but_d_down").addEventListener("click", function() {
+        document.getElementById("Pitch_d").value = 
+            (parseFloat(document.getElementById("Pitch_d").value) - 1).toString();
+    });
+
+    document.getElementById("Roll_but_p_up").addEventListener("click", function() {
+        document.getElementById("Roll_p").value = 
+            (parseFloat(document.getElementById("Roll_p").value) + 1).toString();
+    });
+    document.getElementById("Roll_but_p_down").addEventListener("click", function() {
+        document.getElementById("Roll_p").value = 
+            (parseFloat(document.getElementById("Roll_p").value) - 1).toString();
+    });
+    document.getElementById("Roll_but_i_up").addEventListener("click", function() {
+        document.getElementById("Roll_i").value = 
+            (parseFloat(document.getElementById("Roll_i").value) + 1).toString();
+    });
+    document.getElementById("Roll_but_i_down").addEventListener("click", function() {
+        document.getElementById("Roll_i").value = 
+            (parseFloat(document.getElementById("Roll_i").value) - 1).toString();
+    });
+    document.getElementById("Roll_but_d_up").addEventListener("click", function() {
+        document.getElementById("Roll_d").value = 
+            (parseFloat(document.getElementById("Roll_d").value) + 1).toString();
+    });
+    document.getElementById("Roll_but_d_down").addEventListener("click", function() {
+        document.getElementById("Roll_d").value = 
+            (parseFloat(document.getElementById("Roll_d").value) - 1).toString();
+    });
+
+    document.getElementById("Yaw_but_p_up").addEventListener("click", function() {
+        document.getElementById("Yaw_p").value = 
+            (parseFloat(document.getElementById("Yaw_p").value) + 1).toString();
+    });
+    document.getElementById("Yaw_but_p_down").addEventListener("click", function() {
+        document.getElementById("Yaw_p").value = 
+            (parseFloat(document.getElementById("Yaw_p").value) - 1).toString();
+    });
+    document.getElementById("Yaw_but_i_up").addEventListener("click", function() {
+        document.getElementById("Yaw_i").value = 
+            (parseFloat(document.getElementById("Yaw_i").value) + 1).toString();
+    });
+    document.getElementById("Yaw_but_i_down").addEventListener("click", function() {
+        document.getElementById("Yaw_i").value = 
+            (parseFloat(document.getElementById("Yaw_i").value) - 1).toString();
+    });
+    document.getElementById("Yaw_but_d_up").addEventListener("click", function() {
+        document.getElementById("Yaw_d").value = 
+            (parseFloat(document.getElementById("Yaw_d").value) + 1).toString();
+    });
+    document.getElementById("Yaw_but_d_down").addEventListener("click", function() {
+        document.getElementById("Yaw_d").value = 
+            (parseFloat(document.getElementById("Yaw_d").value) - 1).toString();
+    });
 }
