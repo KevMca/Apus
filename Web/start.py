@@ -1,5 +1,5 @@
 # Import microWebSrv and IMU libraries
-import os
+import os, ujson
 from microWebSrv import MicroWebSrv
 #os.chdir("..")
 #import orient
@@ -32,6 +32,18 @@ def _recvBinaryCallback(webSocket, data) :
 def _closedCallback(webSocket) :
 	print("WS CLOSED")
 '''
+@MicroWebSrv.route('/pid', 'POST')
+def _httpHandlerTestPost(httpClient, httpResponse) :
+	formData  = httpClient.ReadRequestContentAsJSON()
+	jsonObj = ujson.loads(str(formData).replace("'", '"'))
+	with open("www/pid.json", "w") as f:
+		ujson.dump(jsonObj, f)
+	#with open("www/pid.json", "r") as f:
+    #	print(f.read())
+	httpResponse.WriteResponseOk( headers		 = None,
+								  contentType	 = None,
+								  contentCharset = None,
+								  content 		 = None )
 # Start server
 # ----------------------------------------------------------------------------
 

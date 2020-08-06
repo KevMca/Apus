@@ -16,6 +16,7 @@ fetch('pid.json')
   .then(data => appendPID(data));
 
 function appendPID(data){
+  console.log(data);
   jsonData = data;
   // -------------------------------------------------------------------------
   // -- Axis container
@@ -57,13 +58,37 @@ function appendPID(data){
   submitDiv.style = "text-align: center;";
   submitDiv.innerHTML = submit;
   pid_card.appendChild(submitDiv);
+
+  // -- Load listeners
+  loadListeners(data);
 }
 
 // ---------------------------------------------------------------------------
 // Event listeners after the window has loaded
 // ---------------------------------------------------------------------------
-window.onload = function(){
+function loadListeners(data){
   
+  // -------------------------------------------------------------------------
+  // Button listeners
+  // Used to increment the text boxes up and down
+  jsonData.forEach((element) => {
+    for (var key in element["data"]) {
+      const butName = element["name"] + "_" + key;
+      document.getElementById(butName + "_up").addEventListener("click", function() {
+        const textBox = document.getElementById(butName);
+        let floatVal = parseFloat(textBox.value) + 0.1;
+        floatVal = floatVal.toPrecision(5);
+        textBox.value = floatVal.toString();
+      });
+      document.getElementById(butName + "_down").addEventListener("click", function() {
+        const textBox = document.getElementById(butName);
+        let floatVal = parseFloat(textBox.value) - 0.1;
+        floatVal = floatVal.toPrecision(5);
+        textBox.value = floatVal.toString();
+      });
+    }
+  })
+
   // -------------------------------------------------------------------------
   // Submit button listener
   document.getElementById("submit").addEventListener("click", function() {
@@ -86,21 +111,4 @@ window.onload = function(){
       body: JSON.stringify(jsonData)
     })
   });
-  
-  // -------------------------------------------------------------------------
-  // Button listeners
-  // Used to increment the text boxes up and down
-  jsonData.forEach((element) => {
-    for (var key in element["data"]) {
-      const butName = element["name"] + "_" + key;
-      document.getElementById(butName + "_up").addEventListener("click", function() {
-        const textBox = document.getElementById(butName);
-        textBox.value = (parseFloat(textBox.value) + 1).toString();
-      });
-      document.getElementById(butName + "_down").addEventListener("click", function() {
-        const textBox = document.getElementById(butName);
-        textBox.value = (parseFloat(textBox.value) - 1).toString();
-      });
-    }
-  })
 }
