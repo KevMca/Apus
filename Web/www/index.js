@@ -20,21 +20,24 @@ fetch('autre.json')
   .then(response => response.json())
   .then(data => appendAutre(data));
 
+// ---------------------------------------------------------------------------
+// Append PID
+// ---------------------------------------------------------------------------
 function appendPID(data){
   console.log(data);
   pidData = data;
-  // -------------------------------------------------------------------------
-  // -- Axis container
+  // Axis container
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   data.forEach((element) => {
-    // -----------------------------------------------------------------------
-    // -- Title
+    // Title
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const title = `<br><p class="text--bold"> ${element["name"]}</p><br>`;
     const titleDiv = document.createElement("div");
     titleDiv.innerHTML = title;
     pid_card.appendChild(titleDiv);
     
-    // -----------------------------------------------------------------------
-    // -- Input and increment buttons
+    // Input and increment buttons
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     for (var key in element["data"]) {
       // Markup
       const paramMarkup = inputMarkup(key, element["data"][key], 
@@ -46,8 +49,8 @@ function appendPID(data){
       pid_card.appendChild(paramDiv);
     }
   })
-  // -------------------------------------------------------------------------
-  // -- Submit button
+  // Submit button
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   const submit = 
     `<br><button class="text--bold" type="submit" id="submit_pid">Submit</button>`;
   const submitDiv = document.createElement("div");
@@ -55,25 +58,28 @@ function appendPID(data){
   submitDiv.innerHTML = submit;
   pid_card.appendChild(submitDiv);
 
-  // -- Load listeners
+  // Load listeners
   loadListenersPid(data);
 }
 
+// ---------------------------------------------------------------------------
+// Append Autre
+// ---------------------------------------------------------------------------
 function appendAutre(data){
   console.log(data);
   autreData = data;
-  // -------------------------------------------------------------------------
-  // -- Axis container
+  // Axis container
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   data.forEach((element) => {
-    // -----------------------------------------------------------------------
-    // -- Title
+    // Title
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     const title = `<br><p class="text--bold"> ${element["name"]}</p><br>`;
     const titleDiv = document.createElement("div");
     titleDiv.innerHTML = title;
     autre_card.appendChild(titleDiv);
     
-    // -----------------------------------------------------------------------
-    // -- Input and increment buttons
+    // Input and increment buttons
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     for (var key in element["data"]) {
       // Markup
       const paramMarkup = inputMarkup(key, element["data"][key], 
@@ -85,8 +91,8 @@ function appendAutre(data){
       autre_card.appendChild(paramDiv);
     }
   })
-  // -------------------------------------------------------------------------
-  // -- Submit button
+  // Submit button
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   const submit = 
     `<br><button style="background-color: #5ca8ff;" class="text--bold" type="submit" id="submit_autre">Submit</button>`;
   const submitDiv = document.createElement("div");
@@ -94,10 +100,13 @@ function appendAutre(data){
   submitDiv.innerHTML = submit;
   autre_card.appendChild(submitDiv);
 
-  // -- Load listeners
+  // Load listeners
   loadListenersAutre(data);
 }
 
+// ---------------------------------------------------------------------------
+// Input 
+// ---------------------------------------------------------------------------
 function inputMarkup(label, value, id){
   return `<div class="property-container">
             <label class="text--medium" style="display:inline-block; width:10%;">
@@ -112,12 +121,11 @@ function inputMarkup(label, value, id){
 }
 
 // ---------------------------------------------------------------------------
-// Event listeners after the window has loaded
+// PID Event Listeners
 // ---------------------------------------------------------------------------
 function loadListenersPid(data){
-  
-  // -------------------------------------------------------------------------
   // Button listeners
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Used to increment the text boxes up and down
   pidData.forEach((element) => {
     for (var key in element["data"]) {
@@ -137,8 +145,8 @@ function loadListenersPid(data){
     }
   })
 
-  // -------------------------------------------------------------------------
   // Submit button listener
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   document.getElementById("submit_pid").addEventListener("click", function() {
     // Read each of the text boxes
     pidData.forEach((element) => {
@@ -162,12 +170,11 @@ function loadListenersPid(data){
 }
 
 // ---------------------------------------------------------------------------
-// Event listeners after the window has loaded
+// Autre Event Listeners
 // ---------------------------------------------------------------------------
 function loadListenersAutre(data){
-  
-  // -------------------------------------------------------------------------
   // Button listeners
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   // Used to increment the text boxes up and down
   autreData.forEach((element) => {
     for (var key in element["data"]) {
@@ -187,8 +194,8 @@ function loadListenersAutre(data){
     }
   })
 
-  // -------------------------------------------------------------------------
   // Submit button listener
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   document.getElementById("submit_autre").addEventListener("click", function() {
     // Read each of the text boxes
     autreData.forEach((element) => {

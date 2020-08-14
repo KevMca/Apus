@@ -1,13 +1,10 @@
 # Import microWebSrv and IMU libraries
 import os, ujson
 from microWebSrv import MicroWebSrv
-#os.chdir("..")
-#import orient
-#os.chdir("Web")
 
 # Web sockets
 # ----------------------------------------------------------------------------
-'''
+
 # Web socket initialisation
 def _acceptWebSocketCallback(webSocket, httpClient) :
 	print("WS ACCEPT")
@@ -17,12 +14,8 @@ def _acceptWebSocketCallback(webSocket, httpClient) :
 
 # Response to received
 def _recvTextCallback(webSocket, msg) :
-	print("WS RECV TEXT : %s" % msg)
-	matrix = orient.getOrient()
-	m_str = "{},{},{};{},{},{};{},{},{}".format(matrix.vect_x.vect[0], matrix.vect_x.vect[1], matrix.vect_x.vect[2], #east
-		matrix.vect_y.vect[0], matrix.vect_y.vect[1], matrix.vect_y.vect[2], #north
-		matrix.vect_z.vect[0], matrix.vect_z.vect[1], matrix.vect_z.vect[2]) #down
-	webSocket.SendText("%s" % m_str)
+	sendStr = "1.00"
+	webSocket.SendText("%s" % sendStr)
 
 # Print received message
 def _recvBinaryCallback(webSocket, data) :
@@ -31,7 +24,10 @@ def _recvBinaryCallback(webSocket, data) :
 # Web socket closure
 def _closedCallback(webSocket) :
 	print("WS CLOSED")
-'''
+
+
+# Http
+# ----------------------------------------------------------------------------
 @MicroWebSrv.route('/pid', 'POST')
 def _httpHandlerTestPost(httpClient, httpResponse) :
 	formData  = httpClient.ReadRequestContentAsJSON()
@@ -63,7 +59,7 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
 srv = MicroWebSrv(webPath='Web/www/')
 srv.MaxWebSocketRecvLen     = 256
 srv.WebSocketThreaded		= False
-#srv.AcceptWebSocketCallback = _acceptWebSocketCallback
+srv.AcceptWebSocketCallback = _acceptWebSocketCallback
 srv.Start(threaded=True)
 
 # ----------------------------------------------------------------------------
