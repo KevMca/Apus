@@ -1,25 +1,68 @@
+################################################################################
+# pid.py
+# The class wrapper for pid controllers
+#
+# Author:  Kevin McAndrew
+# Created: 5 July 2020
+################################################################################
+# Import libraries
 from machine import Pin
 from machine import UART
 import time, utime, math
 
-uart = UART(1,baudrate=115200,tx=17,rx=16)
-std_p = 101655
-density = 1.225
+################################################################################
+# Generic PID class for controlling surfaces
+# Initialise with constants and then use update function to update the PID
+# controller with current error
+#
+#   Params: kp - proportional constant
+#           ki - integral constant
+#           kd - derivative constant
+################################################################################
+class airspeed:
+    # --------------------------------------------------------------------------
+    # Initialisation method
+    # --------------------------------------------------------------------------
+    def __init__(self, bmp, baud=115200, tx=17, rx=16):
+        self.bmp = bmp
+        self.uart = UART(1,baud,tx=tx,rx=rx)
+        #self.std_p = 101655
+        # Calculate pressure offset
+        while(True):
+            reading = self.uart.read()
+            if reading == None:
+                continue
+            else:
+                pressure = self.readPressure(reading)
+                break
+        self.std_p = self.bmp.pressure - pressure
+        self.density = 1.225
 
-def read():
-    reading = uart.read()
-    pressure = reading[4] \
-        + (reading[5] << 8) \
-        + (reading[6] << 16) \
-        + (reading[7] << 24)
-    print("pressure: {}".format(pressure))
-    temp = reading[8] \
-        + (reading[9] << 8) \
-        + (reading[10] << 16) \
-        + (reading[11] << 24)
-    print("temp: {}".format(temp))
-    speed = math.sqrt(abs( (2*(pressure - std_p)) / density) )
-    print("speed: {}".format(speed))
+    # --------------------------------------------------------------------------
+    # Read the airspeed from the airspeed sensor
+    # --------------------------------------------------------------------------
+    def read(self):
+        reading = self.uart.read()
+        if(reading == None):
+            return None
+        pressure = self.readPressure(reading)
+        temp = self.readTemp(reading)
+        speed = math.sqrt(abs( (2*(pressure - self.bmp.pressure + self.std_p)) / self.density) )
+
+        return speed
+    
+    def readPressure(self, reading):
+        return reading[4] \
+            + (reading[5] << 8) \
+            + (reading[6] << 16) \
+            + (reading[7] << 24)
+
+    def readTemp(self, reading):
+        return reading[8] \
+            + (reading[9] << 8) \
+            + (reading[10] << 16) \
+            + (reading[11] << 24)
+    
 
 # 102087.3 kPa
 
