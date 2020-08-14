@@ -28,6 +28,7 @@ class servo:
     # --------------------------------------------------------------------------
     def __init__(self, pin, min_deg=0, max_deg=180, offset=0):
         self.PWM = PWM(Pin(pin, Pin.OUT), freq=50)
+        self.curr_angle = 0
         self.min_deg = min_deg
         self.max_deg = max_deg
         self.offset = offset
@@ -40,5 +41,6 @@ class servo:
             #print("err: servo instructed beyond maximum angle")
             return
         else:
+            self.curr_angle = angle
             duty = ((angle/180) * (servo_max-servo_min)) + servo_min + self.offset
             self.PWM.duty(int(duty))

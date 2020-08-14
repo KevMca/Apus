@@ -36,7 +36,20 @@ def _closedCallback(webSocket) :
 def _httpHandlerTestPost(httpClient, httpResponse) :
 	formData  = httpClient.ReadRequestContentAsJSON()
 	jsonObj = ujson.loads(str(formData).replace("'", '"'))
-	with open("www/pid.json", "w") as f:
+	with open("/Web/www/pid.json", "w") as f:
+		ujson.dump(jsonObj, f)
+	#with open("www/pid.json", "r") as f:
+    #	print(f.read())
+	httpResponse.WriteResponseOk( headers		 = None,
+								  contentType	 = None,
+								  contentCharset = None,
+								  content 		 = None )
+
+@MicroWebSrv.route('/autre', 'POST')
+def _httpHandlerTestPost(httpClient, httpResponse) :
+	formData  = httpClient.ReadRequestContentAsJSON()
+	jsonObj = ujson.loads(str(formData).replace("'", '"'))
+	with open("/Web/www/autre.json", "w") as f:
 		ujson.dump(jsonObj, f)
 	#with open("www/pid.json", "r") as f:
     #	print(f.read())
@@ -47,7 +60,7 @@ def _httpHandlerTestPost(httpClient, httpResponse) :
 # Start server
 # ----------------------------------------------------------------------------
 
-srv = MicroWebSrv(webPath='www')
+srv = MicroWebSrv(webPath='Web/www/')
 srv.MaxWebSocketRecvLen     = 256
 srv.WebSocketThreaded		= False
 #srv.AcceptWebSocketCallback = _acceptWebSocketCallback

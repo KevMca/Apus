@@ -23,9 +23,7 @@ class pid:
     # --------------------------------------------------------------------------
     def __init__(self, kp, ki, kd):
         # Constants
-        self.kp = kp
-        self.ki = ki
-        self.kd = kd
+        self.params = {"kp": kp, "ki": ki, "kd": kd}
         # Maximum
         self.max = 90
         self.min = -90
@@ -44,15 +42,20 @@ class pid:
         dt = float(utime.ticks_diff(curr_time, self.prev_time))/float(1000000)
 
         # Calculate proportional
-        Pout = self.kp * error
+        Pout = self.params["kp"] * error
         
         # Calculate integral
         self.integral += error * dt
-        Iout = self.ki * self.integral
+        Iout = self.params["ki"] * self.integral
 
         # Calculate derivative
         derivative = (error - self.prev_err) / dt
-        Dout = self.kd * derivative
+        Dout = self.params["kd"] * derivative
+
+        '''print("------------------------------------")
+        print("Pout {} | Iout {} | Dout {}".format(Pout, Iout, Dout))
+        print("kp   {} | ki   {} | kd   {}".format(self.params["kp"], self.params["ki"], self.params["kd"]))
+        print("------------------------------------")'''
 
         self.output = Pout + Iout + Dout
 
