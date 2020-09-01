@@ -59,7 +59,7 @@ def _httpHandlerTestPost(httpClient, httpResponse):
 # Start server
 # ----------------------------------------------------------------------------
 
-srv = MicroWebSrv(webPath='Web/www/')
+srv = MicroWebSrv(webPath='Web/www/', bindIP='')
 srv.MaxWebSocketRecvLen     = 256
 srv.WebSocketThreaded		= True
 srv.AcceptWebSocketCallback = _acceptWebSocketCallback
