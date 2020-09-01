@@ -84,6 +84,7 @@ def readConfig():
         # Pitch
         if pitch_pid.params["ki"] != float(json_file[0]["data"]["i"]):
             pitch_pid.integral = 0
+            print("New config")
         pitch_pid.params["kp"] = float(json_file[0]["data"]["p"])
         pitch_pid.params["ki"] = float(json_file[0]["data"]["i"])
         pitch_pid.params["kd"] = float(json_file[0]["data"]["d"])
@@ -106,6 +107,15 @@ def readConfig():
         speed_init= float(json_file[0]["data"]["target"])
         pitch_init = float(json_file[2]["data"]["target"])
         roll_init = float(json_file[1]["data"]["target"])
+    # Log file
+    with open("/Web/www/log.json", "r") as f:
+        log_file = ujson.load(f)
+    with open("/Web/www/log.json", "w") as f:
+        speed_read = speed.read()
+        if speed_read != None and speed_read < 50:
+            log_file[0]["data"] = speed_read
+        ujson.dump(log_file, f)
+        
 
 # Read configuration
 readConfig()

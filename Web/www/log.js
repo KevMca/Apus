@@ -45,14 +45,26 @@ function testWebSocket()
   websocket       = new WebSocket(wsUri);
   websocket.onopen  = function(evt) { onOpen  (evt) };
   websocket.onmessage = function(evt) { onMessage (evt) };
-  //websocket.onclose   = function(evt) { onClose   (evt) };
-  //websocket.onerror   = function(evt) { onError   (evt) };
+  websocket.onclose   = function(evt) { onClose   (evt) };
+  websocket.onerror   = function(evt) { onError   (evt) };
 }
 // Open
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function onOpen(evt)
 {
   console.log("Websocket disconnected :(");
+}
+// Close
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function onClose(evt)
+{
+  console.log("Websocket closed");
+}
+// Error
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+function onError(evt)
+{
+  console.log("Websocket error");
 }
 // Receive Message
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
