@@ -35,7 +35,7 @@ class airspeed:
             else:
                 pressure = self.readPressure(reading)
                 break
-        self.std_p = self.bmp.pressure - pressure
+        self.offset_p = self.bmp.pressure - pressure
         self.density = 1.225
 
     # --------------------------------------------------------------------------
@@ -47,7 +47,7 @@ class airspeed:
             return None
         pressure = self.readPressure(reading)
         temp = self.readTemp(reading)
-        speed = math.sqrt(abs( (2*(pressure - 102087.3 + self.std_p)) / self.density) )
+        speed = math.sqrt(abs( (2*(pressure - self.bmp.pressure + self.offset_p)) / self.density) )
 
         return speed
     

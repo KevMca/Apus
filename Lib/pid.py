@@ -21,13 +21,14 @@ class pid:
     # --------------------------------------------------------------------------
     # Initialisation method
     # --------------------------------------------------------------------------
-    def __init__(self, kp, ki, kd):
+    def __init__(self, kp, ki, kd, initial = 0):
         # Constants
         self.params = {"kp": kp, "ki": ki, "kd": kd}
         # Maximum
         self.max = 90
         self.min = -90
         # Other variables
+        self.initial = initial
         self.integral = 0
         self.prev_err = 0
         self.prev_time = utime.ticks_us()

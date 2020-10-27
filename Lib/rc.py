@@ -85,8 +85,9 @@ class movingAvg:
     # --------------------------------------------------------------------------
     # Initialisation method
     # --------------------------------------------------------------------------
-    def __init__(self, N):
+    def __init__(self, N, minimum = 0):
         self.N = N
+        self.min = minimum
         self.pointer = 0
         self.data = [0]*self.N
 
@@ -94,16 +95,20 @@ class movingAvg:
     # Update method for adding to moving average
     # --------------------------------------------------------------------------
     def update(self, val):
-        # Update data and pointer
-        self.data[self.pointer] = val
-        self.pointer += 1
-        
-        # Add wrapping for circular buffer
-        if self.pointer >= self.N:
-            self.pointer = 0
-
         # Check if the update method has been updated for first time
         if self.data[self.pointer] == 0:
             self.data = [val]*self.N
+
+        # Check minimum update
+        elif(abs(self.data[self.pointer] - val) < self.min):
+            val = self.data[self.pointer]
+
+        # Add wrapping for circular buffer
+        self.pointer += 1
+        if self.pointer >= self.N:
+            self.pointer = 0
+
+        # Update data
+        self.data[self.pointer] = val
 
         return sum(self.data)/self.N

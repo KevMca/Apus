@@ -9,6 +9,7 @@
 # --------------------------------------------------------------------------
 # Import libraries
 # --------------------------------------------------------------------------
+import modes #config
 import os, time, utime, ujson
 from machine import I2C, Pin
 # Import custom libraries
@@ -31,12 +32,12 @@ os.chdir('..')
 # RC control pins
 roll, pitch, throttle, yaw = 35, 34, 33, 32
 VRA, VRB = 39, 36
-rec = rc.receiver([roll, pitch, throttle, yaw, VRA, VRB])
+receiver = rc.receiver([roll, pitch, throttle, yaw, VRA, VRB])
 
 # Servo control pins
-pitch_servo = servo(19)
-roll_servo = servo(23, offset=-7)
-yaw_servo = servo(18)
+pitch_servo = servo(23)
+roll_servo = servo(18, offset=-7)
+yaw_servo = servo(19)
 throttle_servo = servo(5)
 
 # I2C
@@ -61,121 +62,32 @@ with open("/Web/www/autre.json", "w") as f:
     autre_file[1]["data"]["target"] = roll_init
     ujson.dump(autre_file, f)
 
-
 # Airspeed
 speed = airspeed(bmp180)
 speed_init = 10
 
 # PID controllers
-pid_counter = 0
 pitch_pid = pid(0, 0, 0)
 roll_pid = pid(0, 0, 0)
 speed_pid = pid(0, 0, 0)
 
-# --------------------------------------------------------------------------
-# Helper functions
-# --------------------------------------------------------------------------
-
-def readConfig():
-    with open("/Web/www/pid.json", "r") as f:
-        json_file = ujson.load(f)
-        global pitch_pid, roll_pid, speed_pid
-        # Assign parameters
-        # Pitch
-        if pitch_pid.params["ki"] != float(json_file[0]["data"]["i"]):
-            pitch_pid.integral = 0
-            print("New config")
-        pitch_pid.params["kp"] = float(json_file[0]["data"]["p"])
-        pitch_pid.params["ki"] = float(json_file[0]["data"]["i"])
-        pitch_pid.params["kd"] = float(json_file[0]["data"]["d"])
-        # Roll
-        if roll_pid.params["ki"] != float(json_file[1]["data"]["i"]):
-            roll_pid.integral = 0
-        roll_pid.params["kp"] = float(json_file[1]["data"]["p"])
-        roll_pid.params["ki"] = float(json_file[1]["data"]["i"])
-        roll_pid.params["kd"] = float(json_file[1]["data"]["d"])
-        # Speed
-        if speed_pid.params["ki"] != float(json_file[2]["data"]["i"]):
-            speed_pid.integral = 0
-        speed_pid.params["kp"] = float(json_file[2]["data"]["p"])
-        speed_pid.params["ki"] = float(json_file[2]["data"]["i"])
-        speed_pid.params["kd"] = float(json_file[2]["data"]["d"])
-    with open("/Web/www/autre.json", "r") as f:
-        json_file = ujson.load(f)
-        # Assign parameters
-        global speed_init, pitch_init, roll_init
-        speed_init= float(json_file[0]["data"]["target"])
-        pitch_init = float(json_file[2]["data"]["target"])
-        roll_init = float(json_file[1]["data"]["target"])
-    # Log file
-    with open("/Web/www/log.json", "r") as f:
-        log_file = ujson.load(f)
-    with open("/Web/www/log.json", "w") as f:
-        speed_read = speed.read()
-        if speed_read != None and speed_read < 50:
-            log_file[0]["data"] = speed_read
-        ujson.dump(log_file, f)
-        
-
 # Read configuration
-readConfig()
+pid_counter = 0
+#config.readConfig(pitch_pid, roll_pid, speed_pid)
+
+# Setup mode object
+mode = modes.mode(receiver, speed, bno055, speed_pid, pitch_pid, roll_pid,
+                pitch_servo, roll_servo, throttle_servo, yaw_servo)
 
 # --------------------------------------------------------------------------
 # Main loop
 # --------------------------------------------------------------------------
 
 while(True):
-    # Else if SWC is on, PID control is on
-    #if rec.time[4] >= 1500:
-    if rec.new == 1:
-        rec.new = 0
-        # Pitch
-        # PID parameters - every second
-        if(pid_counter == 50):
-            pid_counter = 0
-            # read JSON
-            readConfig()
-        else:
-            pid_counter += 1
-
-        # Error control
-        # Pitch
-        speed_read = speed.read()
-        pitch_read = bno055.readEuler().angle_x
-        if pitch_read != -1 and pitch_read != 0:
-            if speed_read != None and speed_read < 20:
-                speed_pid.update(speed_init - speed_read)
-            # Remap pitch to better angles
-            pitch_read = pitch_read+180 if pitch_read <= 0 else pitch_read-180
-            # Update PID controller
-            pitch_pid.update(pitch_init - pitch_read)
-            # Set servo
-            pitch_angle = pitch_pid.output + 90
-            pitch_servo.deg(pitch_angle + speed_pid.output)
-
-        # Roll
-        roll_read = bno055.readEuler().angle_y
-        if roll_read != -1 and roll_read != 0 and roll_read != 4:
-            # Update PID controller
-            roll_pid.update(roll_init - roll_read)
-            # Set servo
-            roll_angle = roll_pid.output + 90
-            roll_servo.deg(roll_angle)
-    '''
-    # If SWC is off, then RC control is on
-    if rec.time[4] < 1500:
-        # Move servos to receiver value
-        if rec.new == 1:
-            rec.new = 0
-            # Roll
-            roll_angle = roll_avg.update((rec.time[0] - 990) * (180/1000))
-            roll_servo.deg(roll_angle)
-            # Pitch
-            pitch_angle = pitch_avg.update((rec.time[1] - 990) * (180/1000))
-            pitch_servo.deg(pitch_angle)
-            # Throttle
-            throttle_angle = yaw_avg.update((rec.time[2] - 990) * (180/1000))
-            throttle_servo.deg(throttle_angle)
-            # Yaw
-            yaw_angle = (rec.time[3] - 990) * (180/1000)
-            yaw_servo.deg(yaw_angle)'''
+    # Else if SWC is ON, PID control is on
+    if receiver.time[4] >= 1500:
+        mode.pidMode()
+    
+    # If SWC is OFF, then RC control is on
+    elif receiver.time[4] < 1500:
+        mode.rcMode()
